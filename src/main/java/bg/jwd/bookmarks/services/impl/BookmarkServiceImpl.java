@@ -139,38 +139,30 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 		return result;
 	}
 	
+	@Transactional
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Bookmark> getUserBookmarksWithPagination(int page, int pageSize, String username, boolean publicFilter){
-		List<Bookmark> result = new ArrayList<Bookmark>();
-		Transaction tx = null; 
-		Session session = this.sessionFactory.openSession();
-		
-		try{
-			tx = session.beginTransaction();
-			// Transaction body
-			Criteria criteria = session.createCriteria(Bookmark.class)
-					.createAlias("author", "a");
-			criteria.add(Restrictions.like("a.username", username));
-			if(publicFilter){
-				criteria.add(Restrictions.like("visibility", VisibilityType.Public));
-			}
-			criteria.addOrder(Order.desc("creationDate"));
-			//criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
-			//criteria.setFetchMode("lineItems", FetchMode.JOIN);
-			//criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
-			
-			criteria.setFirstResult((page - 1) * pageSize);
-			criteria.setMaxResults(pageSize);
-			result = criteria.list();
-			tx.commit();
-		} catch(HibernateException e){
-			e.printStackTrace();
-			tx.rollback();
-		} finally {
-			session.close();
+
+		Session session = this.sessionFactory.getCurrentSession();
+		Criteria criteria = session.createCriteria(Bookmark.class)
+				.createAlias("author", "a");
+		criteria.add(Restrictions.like("a.username", username));
+		if(publicFilter){
+			criteria.add(Restrictions.like("visibility", VisibilityType.Public));
 		}
+		criteria
+			.addOrder(Order.desc("creationDate"))
+			.addOrder(Order.asc("title"));
 		
+		//criteria.setResultTransformer(CriteriaSpecification.DISTINCT_ROOT_ENTITY);
+		//criteria.setFetchMode("lineItems", FetchMode.JOIN);
+		//criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+		
+		criteria.setFirstResult((page - 1) * pageSize);
+		criteria.setMaxResults(pageSize);
+		List<Bookmark> result = criteria.list();
+
 		return result;
 	}
 	

@@ -13,6 +13,7 @@
 					</div>
 				</div>
 			</ct:registerTemplate>
+			<div><form:errors cssClass="error"/>${error}</div>
 		</form:form>
 	</jsp:body>
 </ct:pageTemplate>

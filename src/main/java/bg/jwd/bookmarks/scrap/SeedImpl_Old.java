@@ -1,25 +1,19 @@
 package bg.jwd.bookmarks.scrap;
 
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 //import org.hibernate.mapping.Set;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 
 import bg.jwd.bookmarks.dao.RoleDao;
-import bg.jwd.bookmarks.dao.UserDao;
 import bg.jwd.bookmarks.entities.Bookmark;
 import bg.jwd.bookmarks.entities.Keyword;
 import bg.jwd.bookmarks.entities.Role;
@@ -33,40 +27,22 @@ public class SeedImpl_Old implements SeedDao_Old {
 
 	@Autowired
 	private SessionFactory sessionFactory;
-	
-	@Autowired
-	private UserDao userDao;
 
 	@Autowired
 	private RoleDao roleDao;
 
-	@Override
 	@Transactional
-	public boolean seedData() {
-		boolean isSeeded = true;
-		Session session = sessionFactory.openSession();
-		Transaction transaction = null;
-		
-		try {
-			transaction = session.beginTransaction();
-			
-			removeData(session);
-			SeedUsers(session);
-			seedBookmarks(session);
-			
-			transaction.commit();
-		} catch (HibernateException e) {
-			transaction.rollback();
-			e.printStackTrace();
-			isSeeded = false;
-		} finally {
-			session.close();
-		}
-		
-		return isSeeded;
+	@Override
+	public void seedData() {
+		removeData();
+		SeedUsers();
+		seedBookmarks();
 	}
 	
-	private void seedBookmarks(Session session){
+	@SuppressWarnings({ "unused", "unchecked" })
+	private void seedBookmarks(){
+		Session session = this.sessionFactory.getCurrentSession();
+		
 		List<User> allUsers = session.createCriteria(User.class).list();
 		
 		User admin = allUsers.stream()
@@ -186,7 +162,8 @@ public class SeedImpl_Old implements SeedDao_Old {
 	}
 	
 
-	private void SeedUsers(Session session) {
+	private void SeedUsers() {
+		Session session = this.sessionFactory.getCurrentSession();
 		List<Role> roles = new ArrayList<Role>();
 		Role adminRole = new Role("admin");
 		roles.add(adminRole);
@@ -259,8 +236,9 @@ public class SeedImpl_Old implements SeedDao_Old {
 		session.save(user6);
 	}
 
-	private void removeData(Session session) {
+	private void removeData() {
 
+		Session session = this.sessionFactory.getCurrentSession();
 		String sql = "DELETE FROM Role";
 		Query  query = session.createQuery(sql);
 		query.executeUpdate();

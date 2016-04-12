@@ -7,18 +7,22 @@ import org.hibernate.validator.constraints.Email;
 import org.hibernate.validator.constraints.NotEmpty;
 
 import bg.jwd.bookmarks.validations.PasswordMatches;
+import bg.jwd.bookmarks.validations.AlreadyExists;
 
 @PasswordMatches
+
 public class RegisterFormDto {	
 	
 	private String firstName;
 
 	private String lastName;
 	
+	@AlreadyExists(propertyName = "username", message = "Username alrady exists!")
 	@NotNull
 	@NotEmpty
 	private String username;
 	
+	@AlreadyExists(propertyName = "email", message = "Email alrady exists!")
 	@Email
 	@NotEmpty
 	private String email;

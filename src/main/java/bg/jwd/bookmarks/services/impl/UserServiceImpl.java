@@ -21,8 +21,6 @@ import bg.jwd.bookmarks.util.UserUtils;
 
 @Service
 public class UserServiceImpl extends AbstractService<User> implements UserService{
-	/*@Autowired
-	private PasswordEncoder passwordEncoder;*/
 	
 	@Autowired
 	SessionFactory sessionFactory;
@@ -39,11 +37,11 @@ public class UserServiceImpl extends AbstractService<User> implements UserServic
 		return userDao.getAll();
 	}
 
-	@Transactional
+	/*@Transactional
 	@Override
 	public boolean add(User userToAdd) {
 		return userDao.add(userToAdd) != null;
-	}
+	}*/
 
 	@Transactional
 	@Override
@@ -110,6 +108,7 @@ public class UserServiceImpl extends AbstractService<User> implements UserServic
 		return userToAdd;
 	}
 	
+	// TODO: Move to AbstractDao -> isPropertyExists(String propertyName, Object value)
 	@Transactional
 	private boolean userExists(String username){
 		User user = userDao.getByProperty("username", username);
@@ -120,6 +119,7 @@ public class UserServiceImpl extends AbstractService<User> implements UserServic
 		return false;
 	}
 	
+	// TODO: Move to AbstractDao -> isPropertyExists(String propertyName, Object value)
 	@Transactional
 	private boolean emailExists(String email){
 		User user = userDao.getByProperty("email", email);
@@ -136,20 +136,24 @@ public class UserServiceImpl extends AbstractService<User> implements UserServic
 		Md5PasswordEncoder encoder = new Md5PasswordEncoder();
 		String encodedPassword = encoder.encodePassword(form.getPassword(), null);
 		
-		User currentUser = null; 
-			currentUser = UserUtils.getCurrentUser().getUser();
-			currentUser.setUsername(form.getUsername());
-			currentUser.setEmail(form.getEmail());
-			currentUser.setFirstName(form.getFirstName());
-			currentUser.setLastName(form.getLastName());
-			currentUser.setAddress(form.getAddress());
+		User currentUser = UserUtils.getCurrentUser().getUser();
+		String currentUserUsername = currentUser.getUsername();
+		
+		if(true){
 			
-			if(form.getPassword() != null){
-				currentUser.setPassword(encodedPassword);
-			}
+		}
+		
+		currentUser.setUsername(form.getUsername());
+		currentUser.setEmail(form.getEmail());
+		currentUser.setFirstName(form.getFirstName());
+		currentUser.setLastName(form.getLastName());
+		currentUser.setAddress(form.getAddress());
+		
+		if(form.getPassword() != null){
+			currentUser.setPassword(encodedPassword);
+		}
 
-			userDao.update(currentUser);
-		//}
+		userDao.update(currentUser);
 		
 		return currentUser;
 	}

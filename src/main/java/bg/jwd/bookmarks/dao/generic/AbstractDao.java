@@ -4,6 +4,7 @@ import java.io.Serializable;
 import java.util.List;
 
 import org.hibernate.Criteria;
+import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Restrictions;
@@ -87,6 +88,9 @@ public abstract class AbstractDao<T extends Serializable> implements GenericDao<
 	@Override
 	public List<T> getAll() {
 		Session session = this.getCurrentSession();
+		/*if(true){
+			throw new HibernateException("Message");
+		}*/
 		Criteria criteria = session.createCriteria(this.clazz);
 		criteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		List<T> result = criteria.list();
