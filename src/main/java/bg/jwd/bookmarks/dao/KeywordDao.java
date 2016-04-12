@@ -7,5 +7,5 @@ import bg.jwd.bookmarks.entities.Keyword;
 
 public interface KeywordDao extends GenericDao<Keyword>{
 	
-	boolean addAll(Set<Keyword> keywords);
+	void addAll(Set<Keyword> keywords);
 }

@@ -51,6 +51,7 @@ public class AdminController {
 		/*model.asMap().clear();*/
 		String currentUserUsername = UserUtils.getCurrentUser().getUser().getUsername();
 		model.addAttribute("currentUserUsername", currentUserUsername);
+		model.addAttribute("adminController", UrlContants.ADMIN_CONTROLLER_URL);
 		model.addAttribute("adminActive", "active");
 	}
 	
@@ -59,6 +60,7 @@ public class AdminController {
 		
 		List<User> users = userService.getAll();
 		model.addAttribute("users", users);
+		//model.addAttribute("editBookmark", UrlContants.EDIT_BOOKMARK_URL);
 		
 		return ViewsConstants.ALL_USERS;
 	}
@@ -149,7 +151,7 @@ public class AdminController {
 				.map(r -> r.getRoleName()).collect(Collectors.toList());;*/
 		AddUserDto addUserForm = new AddUserDto();
 		model.addAttribute("addUser", addUserForm);
-		
+		model.addAttribute("addAction", UrlContants.ADD_ACTION);
 		List<Role> roles = this.roleService.getAll();
 		model.addAttribute("roles", roles);
 		

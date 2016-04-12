@@ -5,7 +5,7 @@
 
 <ct:pageTemplate title="Add Bookmark">
 <jsp:body>
-	<form:form action="${contextPath}${bookmarkController}/add" method="POST"
+	<form:form action="${contextPath}${bookmarkController}${addAction}" method="POST"
 		modelAttribute="addBookmarkForm" class="form-horizontal">
 		<fieldset>
 			<div class="form-group">

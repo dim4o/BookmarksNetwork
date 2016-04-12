@@ -1,6 +1,5 @@
 package bg.jwd.bookmarks.services.impl;
 
-import java.util.List;
 import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,16 +14,10 @@ public class KeywordsServiceImpl extends AbstractService<Keyword> implements Key
 
 	@Autowired
 	KeywordDao keywordDao;
-	
-	@Override
-	public List<Keyword> getAsCollection(String keywords) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Transactional
+	/*@Transactional
 	@Override
-	public boolean addAll(Set<Keyword> keywords) {
-		return keywordDao.addAll(keywords);
-	}
+	public void addAll(Set<Keyword> keywords) {
+		this.keywordDao.addAll(keywords);
+	}*/
 }

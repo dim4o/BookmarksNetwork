@@ -8,7 +8,7 @@ public class AddBookmarkFormDto {
 	private String title;
 	
 	@NotEmpty
-	private String url;
+	private String link;
 	
 	private String description;
 	
@@ -26,12 +26,12 @@ public class AddBookmarkFormDto {
 		this.title = title;
 	}
 
-	public String getUrl() {
-		return url;
+	public String getLink() {
+		return link;
 	}
 
-	public void setUrl(String url) {
-		this.url = url;
+	public void setLink(String url) {
+		this.link = url;
 	}
 
 	public String getDescription() {

@@ -1,10 +1,16 @@
 package bg.jwd.bookmarks.services.impl;
 
+import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
@@ -12,11 +18,21 @@ import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
+import com.google.common.base.Charsets;
+import com.google.common.io.Files;
+
+import bg.jwd.bookmarks.dao.BookmarkDao;
 import bg.jwd.bookmarks.dao.KeywordDao;
 import bg.jwd.bookmarks.dao.TagDao;
 import bg.jwd.bookmarks.dao.UrlDao;
@@ -38,6 +54,9 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 	SessionFactory sessionFactory;
 	
 	@Autowired
+	BookmarkDao bookmarkDao;
+	
+	@Autowired
 	private KeywordDao keywordDao;
 	
 	@Autowired
@@ -49,44 +68,44 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 	@Transactional
 	@Override
 	public Bookmark createBookmark(Bookmark bookmarkToAdd, AddBookmarkFormDto addBookmarkFormDto) throws Exception{
-		//Bookmark bookmarkToAdd = null;
 		String title = addBookmarkFormDto.getTitle();
-		Url url = new Url(addBookmarkFormDto.getUrl());
+		Url url = new Url(addBookmarkFormDto.getLink());
 		String description = addBookmarkFormDto.getDescription();
 		Set<Keyword> keywords = this.mapToKeyordList(addBookmarkFormDto.getKeywords());
 		Set<Tag> tags = this.mapToTagList((addBookmarkFormDto.getTags()));
 		User author = UserUtils.getCurrentUser().getUser();
 		VisibilityType visibility = VisibilityType.valueOf(addBookmarkFormDto.getVisibility());
 		
-		boolean keywordsAdded = this.keywordDao.addAll(keywords);
-		boolean tagsAdded = this.tagDao.addAll(tags);
+		this.keywordDao.addAll(keywords);
+		this.tagDao.addAll(tags);
 		urlDao.addIfNotExists(url);
 		
-		if(keywordsAdded && tagsAdded){
-			bookmarkToAdd = new Bookmark(title, url, author, visibility);
-			bookmarkToAdd.setDescription(description);
-			bookmarkToAdd.setKeywords(keywords);
-			bookmarkToAdd.setTags(tags);
+		bookmarkToAdd = new Bookmark(title, url, author, visibility);
+		bookmarkToAdd.setDescription(description);
+		bookmarkToAdd.setKeywords(keywords);
+		bookmarkToAdd.setTags(tags);
 			
-			//bookmarkDao.add(bookmarkToAdd);
-		} else {
-			throw new Exception();
-		}
-
 		return bookmarkToAdd;
 	}
 	
 	@Transactional
 	@Override
 	public Bookmark editBookmark(Bookmark bookmark, AddBookmarkFormDto form){
-		Url url = new Url(form.getUrl());
+		Url url = new Url(form.getLink());
+		Url urlFromDb = this.urlDao.getByProperty("link", form.getLink());
 		Set<Keyword> keywords = this.mapToKeyordList(form.getKeywords());
 		Set<Tag> tags = this.mapToTagList(form.getTags());
 
 		bookmark.setTitle(form.getTitle());
 		bookmark.setDescription(form.getDescription());
-		bookmark.setVisibility(VisibilityType.valueOf(form.getVisibility()));
 		
+		if(urlFromDb != null){
+			bookmark.setVisibility(VisibilityType.Private);
+		} else {
+			bookmark.setVisibility(VisibilityType.valueOf(form.getVisibility()));
+			//urlDao.add(url);
+		}
+
 		keywordDao.addAll(keywords);
 		tagDao.addAll(tags);
 		url = urlDao.addIfNotExists(url);
@@ -139,6 +158,21 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 		return result;
 	}
 	
+	/*private <T> Set<T> mapToList(String wordsSequence){
+		Set<T> result = new HashSet<T>();
+		Class<T> clazz = null;
+		if(wordsSequence != null && !wordsSequence.isEmpty()){
+			List<String> sequenseAsList = Arrays.asList(wordsSequence.trim().split("\\s*,\\s*"));
+			
+			for (String item : sequenseAsList) {
+				Constructor constructor = clazz.getConstructor(String.class);
+				T itemToAdd = (T) constructor.newInstance(item);
+			}
+		}
+		
+		return result;
+	}*/
+	
 	@Transactional
 	@SuppressWarnings("unchecked")
 	@Override
@@ -166,32 +200,17 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 		return result;
 	}
 	
+	@Transactional
 	@Override
-	public int getCount(String username){
-		int size = 0;
-		Transaction tx = null; 
-		Session session = this.sessionFactory.openSession();
+	public long getCount(String username){
+		Criteria criteria = this.sessionFactory.getCurrentSession()
+				.createCriteria(Bookmark.class)
+				.createAlias("author", "a");
+		criteria.add(Restrictions.like("a.username", username));
 		
-		try{
-			tx = session.beginTransaction();
-			// Transaction body
-			Criteria criteria = session.createCriteria(Bookmark.class)
-					.createAlias("author", "a");
-			criteria.add(Restrictions.like("a.username", username));
-			size =  criteria.list().size();
-			tx.commit();
-		} catch(HibernateException e){
-			e.printStackTrace();
-			tx.rollback();
-		} finally {
-			session.close();
-		}
-		
-		return size;
+		return  (long)criteria.setProjection(Projections.rowCount()).uniqueResult();
 	}
 
-	
-	
 	/**
 	 * Deletes bookmark
 	 * Deletes url only if hasn't other bookmarks associated
@@ -210,28 +229,93 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 		return bookmarkDeleted;
 	}
 
+	@Transactional
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<Bookmark> getAllUserBookmarks(String username) {
-		List<Bookmark> result = null;
-		Transaction tx = null; 
-		Session session = this.sessionFactory.openSession();
 		
-		try{
-			tx = session.beginTransaction();
-			// Transaction body
-			Criteria criteria = session.createCriteria(Bookmark.class)
+			Criteria criteria = this.sessionFactory.getCurrentSession()
+					.createCriteria(Bookmark.class)
 					.createAlias("author", "a");
 			criteria.add(Restrictions.like("a.username", username));
-			result =  criteria.list();
-			tx.commit();
-		} catch(HibernateException e){
-			e.printStackTrace();
-			tx.rollback();
-		} finally {
-			session.close();
-		}
-		
+			List<Bookmark> result =  criteria.list();
+
 		return result;
+	}
+	
+	@Transactional
+	@Override
+	public void importBookmarks(HttpServletRequest request, MultipartFile file, String visibility) throws Throwable  {
+		File uploadedFile = this.uploadFile(request, file);
+
+		String html = null;
+        
+		try{
+			html = Files.toString(uploadedFile, Charsets.UTF_8);}
+		catch(Exception e){
+			e.printStackTrace();
+		}
+		Document doc = Jsoup.parse(html);
+		Elements links = doc.select("a[href]");
+
+			
+		for (Element element : links) {
+			String link = element.attr("href");
+			String title = element.text();
+			if(link != null && !link.isEmpty() && title != null && !title.isEmpty()){
+				
+				Url url = new Url(link);
+				Bookmark currentBookmark = new Bookmark(
+						title, 
+						url, 
+						UserUtils.getCurrentUser().getUser(), 
+						VisibilityType.Public);
+				Url urlFromDb = urlDao.getByProperty("link", link);
+				
+				if(urlFromDb != null){
+					currentBookmark.setUrl(urlFromDb);
+					currentBookmark.setVisibility(VisibilityType.Private);
+				} else {
+					urlDao.add(url);
+				}
+				
+				bookmarkDao.add(currentBookmark);
+			}
+		}
+	}
+	
+	private File uploadFile(HttpServletRequest request, MultipartFile file) {
+		// Root Directory.
+        String uploadRootPath = request.getSession().getServletContext().getRealPath("upload");
+        File uploadRootDir = new File(uploadRootPath);
+
+        // Create directory if it not exists.
+        if (!uploadRootDir.exists()) {
+            uploadRootDir.mkdirs();
+        }
+
+        // Client File Name
+        String name = file.getOriginalFilename();
+        File uploadedFile = null;
+ 
+        if (name != null && name.length() > 0) {
+            try {
+                byte[] bytes = file.getBytes();
+ 
+                // Create the file on server
+                File serverFile = new File(uploadRootDir.getAbsolutePath() + File.separator + name);
+ 
+                // Stream to write data to file in server.
+                BufferedOutputStream stream = new BufferedOutputStream(new FileOutputStream(serverFile));
+                stream.write(bytes);
+                stream.close();
+                uploadedFile = serverFile;
+	        } catch (Exception e) {
+	            System.out.println("Error Write file: " + name);
+	            // TODO: Error handling
+	        }
+        }
+        
+		return uploadedFile;
 	}
 }

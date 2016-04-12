@@ -5,7 +5,7 @@
 
 <ct:pageTemplate title="Register">
 	<jsp:body>
-		<form:form action="${contextPath}/admin/users/add" method="post" modelAttribute="addUser">
+		<form:form action="${contextPath}/admin/users${addAction}" method="post" modelAttribute="addUser">
 		
 		<ct:registerTemplate>
 			<jsp:body>
@@ -23,16 +23,10 @@
 		        		</c:if>
 		        		
 		        	</c:forEach>
-		        	<!-- <option value="1">Administrador</option>
-       				<option value="2">Usuario avanzado</option> -->
-       				<%-- <form:options items="${roles}" itemLabel="name" itemValue="id" /> --%>
-		          <!-- <option disabled="disabled">User</option>
-		          <option>Admin</option> -->
 		        </form:select>
 		      </div>
 		    </div>
 		    
-			
         	<div class="form-group">
 		      <label class="col-lg-2 control-label">Status</label>
 		      <div class="col-lg-10">

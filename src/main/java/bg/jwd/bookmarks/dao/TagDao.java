@@ -7,5 +7,5 @@ import bg.jwd.bookmarks.entities.Tag;
 
 public interface TagDao extends GenericDao<Tag>{
 	
-	boolean addAll(Set<Tag> tags);
+	void addAll(Set<Tag> tags);
 }

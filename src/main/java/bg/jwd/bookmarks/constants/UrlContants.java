@@ -18,6 +18,8 @@ public class UrlContants {
 	
 	public static final String ADD_ACTION = "/add";
 	
+	public static final String EDIT_ACTION = "/edit/";
+	
 	public static final String ADMIN_CONTROLLER_URL = "/admin";
 	
 	public static final String USERS_URL = "/users";

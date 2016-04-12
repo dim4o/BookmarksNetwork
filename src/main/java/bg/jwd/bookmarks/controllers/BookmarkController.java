@@ -51,9 +51,6 @@ public class BookmarkController {
 	@Autowired
 	private UrlService urlService;
 	
-	@Autowired
-	private BookmarkDao bookmarkDao;
-	
 	@ModelAttribute("currentUserUsername")
 	public void addCommonObjects(Model model){
 		
@@ -87,7 +84,7 @@ public class BookmarkController {
 		String currentUserUsername = UserUtils.getCurrentUser().getUser().getUsername();
 		
 		List<Bookmark> bookmarks = this.bookmarkService.getUserBookmarksWithPagination(pageNum, 10, currentUserUsername, false);
-		int totalUserBookmarksCount = bookmarkService.getCount(currentUserUsername);
+		long totalUserBookmarksCount = bookmarkService.getCount(currentUserUsername);
 		int totalPageCount = (int) Math.ceil((double)totalUserBookmarksCount / 10.0d);
 		model.addAttribute("totalPageCount", totalPageCount);
 		model.addAttribute("bookmarks", bookmarks);
@@ -104,6 +101,7 @@ public class BookmarkController {
 		AddBookmarkFormDto addBookmarkForm = new AddBookmarkFormDto();
 		model.addAttribute("addBookmarkForm", addBookmarkForm);
 		model.addAttribute("addAction", UrlContants.ADD_ACTION);
+		
 		return ViewsConstants.ADD_BOOKMARK;
 	}
 
@@ -120,14 +118,17 @@ public class BookmarkController {
 			bookmarkToadd = this.bookmarkService.createBookmark(bookmarkToadd, addBookmarkForm);
 			String bookmarkUrlLink = bookmarkToadd.getUrl().getLink();
 			
-			//Url url = this.urlService.getByProperty("link", bookmarkUrlLink);
+			Url urlFromDb = this.urlService.getByProperty("link", bookmarkUrlLink);
 			
 			/*System.out.println("LINK:");
 			System.out.println(url.getLink());*/
 			
-			//if(url == null){
-				this.bookmarkService.add(bookmarkToadd);
-			//}
+			if(urlFromDb != null){
+				bookmarkToadd.setVisibility(VisibilityType.Private);
+				bookmarkToadd.setUrl(urlFromDb);
+			} 
+			
+			this.bookmarkService.add(bookmarkToadd);
 			
 		} catch (Exception e) {
 			log.error("The bookmark cannot be created", e);
@@ -210,7 +211,7 @@ public class BookmarkController {
             @RequestParam("file") MultipartFile file,
             @RequestParam("visibility") String visibility) throws Throwable {
  
-    	this.bookmarkDao.importBookmarks(request, file, visibility);
+    	this.bookmarkService.importBookmarks(request, file, visibility);
             
         return "redirect:" + UrlContants.BOOKMARKS_CONTROLLER_URL;
     }

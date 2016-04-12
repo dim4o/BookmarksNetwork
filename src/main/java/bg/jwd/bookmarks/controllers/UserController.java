@@ -194,7 +194,7 @@ public class UserController {
 			user.setIsFollow(false);
 		}
 		
-		List<Bookmark> bookmarks = this.bookmarkService.getUserBookmarksWithPagination(pageNum, 10, username, false);
+		List<Bookmark> bookmarks = this.bookmarkService.getUserBookmarksWithPagination(pageNum, 10, username, true);
 		int totalPageCount = (int) Math.ceil((double)bookmarkService.getCount(username) / 10.0d);
 		
 		this.chaeckIsSaved(bookmarks);
@@ -348,6 +348,7 @@ public class UserController {
 		return "redirect:" + referer;
 	}
 	
+	// TODO: move to BookmarkController and change
 	@RequestMapping(value = "/save/{bookmarkId}", method = RequestMethod.GET)
 	public String saveBookmark(
 			HttpServletRequest request, 
