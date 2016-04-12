@@ -1,0 +1,19 @@
+package bg.jwd.bookmarks.exceptions;
+
+import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.servlet.ModelAndView;
+ 
+@ControllerAdvice(basePackages = {"bg.jwd.bookmarks.controllers"})
+public class ExceptionControllerAdvice {
+ 
+    @ExceptionHandler(Exception.class)
+    public ModelAndView exception(Exception e) {
+         
+        ModelAndView mav = new ModelAndView("exception");
+        mav.addObject("name", e.getClass().getSimpleName());
+        mav.addObject("message", e.getMessage());
+ 
+        return mav;
+    }
+}

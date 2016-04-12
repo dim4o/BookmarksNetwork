@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/mvc"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:beans="http://www.springframework.org/schema/beans"
+	xmlns:context="http://www.springframework.org/schema/context" 
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/mvc 
+		http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/beans 
+		http://www.springframework.org/schema/beans/spring-beans.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context.xsd
+		http://www.springframework.org/schema/tx
+		http://www.springframework.org/schema/tx/spring-tx-4.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+		
+
+	<!-- DispatcherServlet Context: defines this servlet's request-processing 
+		infrastructure -->
+
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<annotation-driven />
+	<!-- <annotation-driven ignoreDefaultModelOnRedirect="true" /> -->
+	<!-- Handles HTTP GET requests for /resources/** by efficiently serving 
+		up static resources in the ${webappRoot}/resources directory -->
+	<resources mapping="/resources/**" location="/resources/" />
+
+	<!-- Resolves views selected for rendering by @Controllers to .jsp resources 
+		in the /WEB-INF/views directory -->
+	<beans:bean
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<beans:property name="prefix" value="/WEB-INF/views/" />
+		<beans:property name="suffix" value=".jsp" />
+	</beans:bean>
+
+	<context:component-scan base-package="bg.jwd.bookmarks" />
+	
+	<!-- <context:annotation-config /> -->
+	<annotation-driven ignore-default-model-on-redirect="true" />
+	
+	<!-- <tx:annotation-driven  transaction-manager="transactionManager"/>
+	<beans:bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+  		<beans:property name="dataSource" ref="dataSource"/>
+	</beans:bean> -->
+
+	<!-- <beans:import resource="security.xml"/> -->
+
+	<!-- Persistence Configuration -->
+	<beans:bean id="jpaVendorAdapter"
+		class="org.springframework.orm.jpa.vendor.HibernateJpaVendorAdapter">
+		<beans:property name="database" value="HSQL" />
+		<beans:property name="databasePlatform"
+			value="org.hibernate.dialect.HSQLDialect" />
+	</beans:bean>
+
+	<beans:bean id="jpaDialect"
+		class="org.springframework.orm.jpa.vendor.HibernateJpaDialect" />
+
+	<beans:bean id="dataSource"
+		class="org.springframework.jdbc.datasource.DriverManagerDataSource">
+
+		<beans:property name="driverClassName" value="oracle.jdbc.OracleDriver" />
+		<beans:property name="url"
+			value="jdbc:oracle:thin:@localhost:1521:xe" />
+		<beans:property name="username" value="Bookmarks" />
+		<beans:property name="password" value="bookmarks" />
+	</beans:bean>
+
+	<!-- JPA entity manager factory -->
+	<beans:bean id="entityManagerFactory"
+		class="org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean">
+		<beans:property name="persistenceXmlLocation"
+			value="classpath:META-INF/persistence.xml" />
+		<beans:property name="persistenceUnitName" value="persistenceUnit" />
+		<beans:property name="dataSource" ref="dataSource" />
+		<beans:property name="jpaVendorAdapter" ref="jpaVendorAdapter" />
+		<beans:property name="jpaDialect" ref="jpaDialect" />
+	</beans:bean>
+
+	<!-- Hibernate session factory -->
+	<beans:bean id="sessionFactory"
+		class="org.springframework.orm.hibernate5.LocalSessionFactoryBean">
+
+		<beans:property name="dataSource">
+			<beans:ref bean="dataSource" />
+		</beans:property>
+
+		<beans:property name="hibernateProperties">
+			<beans:props>
+				<beans:prop key="hibernate.dialect">org.hibernate.dialect.Oracle10gDialect
+				</beans:prop>
+				<beans:prop key="hibernate.show_sql">true</beans:prop>
+			</beans:props>
+		</beans:property>
+		
+		<!-- <beans:property name="hibernate.search.default.directory_provider" value="filesystem" />  -->
+		
+		<!-- <beans:property name="hibernate.event.merge.entity_copy_observer" value="allow"/> -->
+
+		<beans:property name="packagesToScan" value="bg.jwd.bookmarks.entities" />
+	</beans:bean>
+
+	<!-- Transaction Manager -->
+	<!-- <beans:bean id="txManager" class="org.springframework.orm.jpa.JpaTransactionManager"> 
+		<beans:property name="entityManagerFactory" ref="entityManagerFactory" /> 
+		<beans:property name="dataSource" ref="dataSource" /> <beans:property name="jpaDialect" 
+		ref="jpaDialect" /> 
+	</beans:bean> -->
+	
+	<!-- NEWWWWWWWWWWWWWW !!! -->
+	<!-- <beans:bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager"> 
+		<beans:property name="dataSource" ref="dataSource" /> 
+	</beans:bean> -->
+
+	<beans:bean id="txManager"
+		class="org.springframework.orm.hibernate5.HibernateTransactionManager">
+		<beans:property name="sessionFactory" ref="sessionFactory"></beans:property>
+	</beans:bean>
+	
+	<tx:annotation-driven transaction-manager="txManager" />
+	
+	<aop:aspectj-autoproxy/>
+	
+	<beans:import resource="security.xml" />
+	
+
+	<beans:bean id="messageSource"
+		class="org.springframework.context.support.ResourceBundleMessageSource">
+		<beans:property name="defaultEncoding" value="UTF-8" />
+		<beans:property name="basename" value="messages" />
+	</beans:bean>
+
+	<resources mapping="/resources/**" location="/resources/" />
+	
+	<beans:bean id="filterMultipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+        <beans:property name="maxUploadSize" value="100000000"/>
+    </beans:bean>
+    
+    <beans:bean id="multipartResolver"
+      class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+ 
+       <!-- Maximum file size: 1MB -->
+       <!-- 1MB = 125000 Byte -->
+      <beans:property name="maxUploadSize" value="12500000" />
+ 
+  	</beans:bean>
+
+</beans:beans>
