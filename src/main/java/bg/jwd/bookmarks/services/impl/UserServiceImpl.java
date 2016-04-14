@@ -1,7 +1,8 @@
 package bg.jwd.bookmarks.services.impl;
 
-import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -80,7 +81,6 @@ public class UserServiceImpl extends AbstractService<User> implements UserServic
 	}
 
 	@Transactional
-	@SuppressWarnings({ "rawtypes", "unchecked" })
 	@Override
 	public User registerNewUserAccount(RegisterFormDto userDto) 
 			throws UserExistsException {
@@ -99,7 +99,7 @@ public class UserServiceImpl extends AbstractService<User> implements UserServic
 				userDto.getAddress());
 		
 		Role userRole = roleDao.getByProperty("roleName", "user");
-		List roles = new ArrayList<Role>();
+		Set<Role> roles = new HashSet<Role>();
 		roles.add(userRole);
 		userToAdd.setRoles(roles);
 
@@ -137,12 +137,6 @@ public class UserServiceImpl extends AbstractService<User> implements UserServic
 		String encodedPassword = encoder.encodePassword(form.getPassword(), null);
 		
 		User currentUser = UserUtils.getCurrentUser().getUser();
-		String currentUserUsername = currentUser.getUsername();
-		
-		if(true){
-			
-		}
-		
 		currentUser.setUsername(form.getUsername());
 		currentUser.setEmail(form.getEmail());
 		currentUser.setFirstName(form.getFirstName());

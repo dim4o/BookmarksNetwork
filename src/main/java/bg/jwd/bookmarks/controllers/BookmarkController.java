@@ -1,5 +1,6 @@
 package bg.jwd.bookmarks.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.servlet.http.HttpServletRequest;
@@ -28,11 +29,14 @@ import bg.jwd.bookmarks.constants.UrlContants;
 import bg.jwd.bookmarks.constants.ViewsConstants;
 import bg.jwd.bookmarks.dao.BookmarkDao;
 import bg.jwd.bookmarks.dto.AddBookmarkFormDto;
+import bg.jwd.bookmarks.dto.UserTagDto;
 import bg.jwd.bookmarks.entities.Bookmark;
+import bg.jwd.bookmarks.entities.Tag;
 import bg.jwd.bookmarks.entities.Url;
 import bg.jwd.bookmarks.entities.User;
 import bg.jwd.bookmarks.enums.VisibilityType;
 import bg.jwd.bookmarks.exceptions.UnauthorizeException;
+import bg.jwd.bookmarks.security.CurrentUser;
 import bg.jwd.bookmarks.servises.BookmarkService;
 import bg.jwd.bookmarks.servises.UrlService;
 import bg.jwd.bookmarks.util.UserUtils;
@@ -63,12 +67,14 @@ public class BookmarkController {
 	@RequestMapping(method = RequestMethod.GET)
 	public String userBookmarks(Model model) {
 
-		String currentUserUsername = UserUtils.getCurrentUser().getUser().getUsername();
+		User currentUser = UserUtils.getCurrentUser().getUser();
+		String currentUserUsername = currentUser.getUsername();
 
 		List<Bookmark> bookmarks = bookmarkService.getUserBookmarksWithPagination(1, 10, currentUserUsername, false);
 		int totalPageCount = (int) Math.ceil((double)bookmarkService.getCount(currentUserUsername) / 10.0d);
 		model.addAttribute("totalPageCount", totalPageCount);
 		model.addAttribute("bookmarks", bookmarks);
+		model.addAttribute("userTags", currentUser.getTags());
 		
 		log.debug(totalPageCount);
 		
@@ -214,6 +220,30 @@ public class BookmarkController {
     	this.bookmarkService.importBookmarks(request, file, visibility);
             
         return "redirect:" + UrlContants.BOOKMARKS_CONTROLLER_URL;
+    }
+	
+    @RequestMapping(value = "/tag/{tagName}", method = RequestMethod.GET)
+    public String getUserBookmarksByTag(
+    		@PathVariable(value="tagName") String tagName,
+    		Model model) {
+ 
+    	User currUser = UserUtils.getCurrentUser().getUser();
+    	String useername = currUser.getUsername();
+    	List<Bookmark> bookmarks = this.bookmarkService.getUserBookmarksByTag(useername, tagName);
+    	
+    	/*List<UserTagDto> objects = new ArrayList<>();
+		for (Tag tag : currUser.getTags()) {
+			long count = bookmarks.stream().filter(b -> b.getTags().contains(tag.getTagName())).count();
+			UserTagDto curr = new UserTagDto();
+			curr.setTagName(tag.getTagName());
+			curr.setBookmarksCount(count);
+			objects.add(curr);
+		}*/
+		
+        model.addAttribute("bookmarks", bookmarks);
+        model.addAttribute("userTags", currUser.getTags());
+        
+        return "userBookmarks";
     }
     
     private boolean isAuthorizedToEditOrDelete(User user, Bookmark bookmark) throws UnauthorizeException{

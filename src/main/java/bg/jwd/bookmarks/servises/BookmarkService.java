@@ -25,4 +25,6 @@ public interface BookmarkService extends GenericService<Bookmark> {
 	boolean safeDeleteBookmark(Bookmark bookmark);
 	
 	void importBookmarks(HttpServletRequest request, MultipartFile file, String visibility) throws Throwable;
+	
+	List<Bookmark> getUserBookmarksByTag(String user, String tagName);
 }

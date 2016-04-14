@@ -54,6 +54,7 @@
 				<td>First Name</td>
 				<td>Last Name</td>
 				<td>Address</td>
+				<td>Status</td>
 				<td>Roles</td>
 			</tr>
 		</thead>
@@ -68,6 +69,7 @@
 						<td>${user.firstName}</td>
 						<td>${user.lastName}</td>
 						<td>${user.address}</td>
+						<td>${user.enabled ? 'enabled' : 'disabled'}</td>
 						<td>${user.roles}</td>
 						<td>
 							<a href="${contextPath}/admin/users/edit/${user.userId}" class="btn btn-primary btn-sm">

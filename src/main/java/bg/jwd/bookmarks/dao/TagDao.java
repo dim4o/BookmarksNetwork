@@ -8,4 +8,6 @@ import bg.jwd.bookmarks.entities.Tag;
 public interface TagDao extends GenericDao<Tag>{
 	
 	void addAll(Set<Tag> tags);
+	
+	Set<Tag> getTagsByUsername(String username);
 }

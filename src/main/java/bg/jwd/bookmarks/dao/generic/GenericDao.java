@@ -26,6 +26,8 @@ public interface GenericDao<T extends Serializable> {
 	//T saveOrUpdate(final T ubj);
 
 	List<T> getAll();
+	
+	T addPersist(final T obj);
 
 	//void setClass(Class<T> clazz);
 }

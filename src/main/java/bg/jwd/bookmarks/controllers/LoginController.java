@@ -22,7 +22,7 @@ import bg.jwd.bookmarks.dto.LoginFormDto;
 
 @Controller
 @RequestMapping(value=UrlContants.LOGIN_CONTROLLER_URL)
-@PreAuthorize("hasRole('ROLE_ANONYMOUS')")
+@PreAuthorize("hasRole('ROLE_ANONYMOUS')") // TODO: not working ???
 public class LoginController {
 	
 	private final Log log = LogFactory.getLog(this.getClass());

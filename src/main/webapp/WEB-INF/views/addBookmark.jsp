@@ -19,8 +19,8 @@
 			<div class="form-group">
 				<label for="idInput" class="col-lg-2 control-label">Url</label>
 				<div class="col-lg-4">
-					<form:input type="text" path="url" placeholder="Url" class="form-control" />
-					<div><form:errors path="url" cssClass="error" /></div>
+					<form:input type="text" path="link" placeholder="Url" class="form-control" />
+					<div><form:errors path="link" cssClass="error" /></div>
 				</div>
 			</div>
 			
@@ -40,7 +40,7 @@
 			</div>
 			
 			<div class="form-group">
-				<label for="tagsInput" class="col-lg-2 control-label">Keywords <br>(comma separated)</label>
+				<label for="tagsInput" class="col-lg-2 control-label">Tags <br>(comma separated)</label>
 				<div class="col-lg-4">
 					<form:input type="text" path="tags" placeholder="Tags" class="form-control" id="tagsInput"/>
 				</div>

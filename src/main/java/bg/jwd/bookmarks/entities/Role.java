@@ -2,7 +2,9 @@ package bg.jwd.bookmarks.entities;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -31,14 +33,14 @@ public class Role implements Serializable {
 
 	@ManyToMany(mappedBy = "roles", cascade = { CascadeType.DETACH, CascadeType.MERGE, CascadeType.PERSIST,
 			CascadeType.REFRESH })
-	private List<User> users;
+	private Set<User> users;
 
 	public Role() {
 	}
 
 	public Role(String roleName) {
 		this.roleName = roleName;
-		this.users = new ArrayList<User>();
+		this.users = new HashSet<User>();
 	}
 
 	public int getRoleId() {
@@ -57,11 +59,11 @@ public class Role implements Serializable {
 		this.roleName = roleName;
 	}
 
-	public void setUsers(List<User> users) {
+	public void setUsers(Set<User> users) {
 		this.users = users;
 	}
 
-	public List<User> getUsers() {
+	public Set<User> getUsers() {
 		return this.users;
 	}
 
@@ -69,6 +71,11 @@ public class Role implements Serializable {
 	public String toString() {
 		return this.roleName;
 	}
+	
+	@Override
+    public int hashCode() {
+        return this.roleName.hashCode();
+    }
 
 	// TODO: height quality override / null ??
 	@Override

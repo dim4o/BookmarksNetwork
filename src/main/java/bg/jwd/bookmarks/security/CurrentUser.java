@@ -1,7 +1,7 @@
 package bg.jwd.bookmarks.security;
 import bg.jwd.bookmarks.entities.User;
 
-import java.util.List;
+import java.util.Set;
 
 import org.springframework.security.core.GrantedAuthority;
 
@@ -10,7 +10,7 @@ public class CurrentUser extends org.springframework.security.core.userdetails.U
 	private static final long serialVersionUID = -2137583252465681895L;
 	private User user;
 
-	public CurrentUser(User user, List<GrantedAuthority> authorities) {
+	public CurrentUser(User user, Set<GrantedAuthority> authorities) {
 		super(user.getUsername(), user.getPassword(), authorities);
 		this.user = user;
 	}

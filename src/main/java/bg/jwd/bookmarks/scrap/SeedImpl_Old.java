@@ -164,7 +164,7 @@ public class SeedImpl_Old implements SeedDao_Old {
 
 	private void SeedUsers() {
 		Session session = this.sessionFactory.getCurrentSession();
-		List<Role> roles = new ArrayList<Role>();
+		Set<Role> roles = new HashSet<Role>();
 		Role adminRole = new Role("admin");
 		roles.add(adminRole);
 		Role userRole = new Role("user");
@@ -173,8 +173,8 @@ public class SeedImpl_Old implements SeedDao_Old {
 		roleDao.add(adminRole);
 		roleDao.add(userRole);
 
-		List<Role> roles1 = new ArrayList<Role>();
-		List<Role> roles2 = new ArrayList<Role>();
+		Set<Role> roles1 = new HashSet<Role>();
+		Set<Role> roles2 = new HashSet<Role>();
 		roles1.add(adminRole);
 		roles2.add(userRole);
 

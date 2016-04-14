@@ -1,6 +1,7 @@
 package bg.jwd.bookmarks.controllers;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.validation.Valid;
 
@@ -69,7 +70,7 @@ public class AdminController {
 	public String editUserDetails(Model model, @PathVariable(value="userId") long userId) {
 		User user = userService.getByProperty("userId", userId);
 		List<Role> roles = roleService.getAll();
-		List<Role> userRoles = user.getRoles();
+		Set<Role> userRoles = user.getRoles();
 		roles.removeAll(userRoles);
 		
 		model.addAttribute("roles", roles);
@@ -172,7 +173,7 @@ public class AdminController {
 		if(!result.hasErrors()){
 			user = createAccount(addUserForm, result);
 			user.setEnabled(addUserForm.getStatus());
-			List<Role> roles = user.getRoles();
+			Set<Role> roles = user.getRoles();
 			
 			// TODO: Optimize process
 			if(addUserForm.getRoles() != null){

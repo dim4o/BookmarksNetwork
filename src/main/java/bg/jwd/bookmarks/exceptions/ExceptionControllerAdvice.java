@@ -15,7 +15,7 @@ public class ExceptionControllerAdvice {
     @ExceptionHandler(Exception.class)
     public ModelAndView exception(Exception e) {
          
-    	log.error(e);
+    	//log.error(e);
         e.printStackTrace();
         
         ModelAndView mav = new ModelAndView("exception");

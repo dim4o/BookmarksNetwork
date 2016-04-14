@@ -1,7 +1,7 @@
 package bg.jwd.bookmarks.security;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
@@ -9,9 +9,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 
-import bg.jwd.bookmarks.dao.UserDao;
 import bg.jwd.bookmarks.entities.Role;
 import bg.jwd.bookmarks.entities.User;
 import bg.jwd.bookmarks.servises.UserService;
@@ -30,7 +28,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 			if(user == null){
 				return null;
 			}
-			List<GrantedAuthority> authorities = getUserAuthorities(user);
+			Set<GrantedAuthority> authorities = getUserAuthorities(user);
 			resultUser = new CurrentUser(user, authorities);
 
 			return resultUser;
@@ -42,9 +40,9 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 		return resultUser;
 	}
 	
-	private List<GrantedAuthority> getUserAuthorities(User user){
-		List<GrantedAuthority> authorities = new ArrayList<>();
-		List<Role> roles = user.getRoles();
+	private Set<GrantedAuthority> getUserAuthorities(User user){
+		Set<GrantedAuthority> authorities = new HashSet<>();
+		Set<Role> roles = user.getRoles();
 		for (Role role : roles) {
 			SimpleGrantedAuthority currentRole = new SimpleGrantedAuthority("ROLE_" + role.getRoleName().toUpperCase());
 			authorities.add(currentRole);

@@ -80,7 +80,21 @@ public class User implements Serializable{
 			name = "users_roles",
 			joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
 			inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id"))
-	private List<Role> roles;
+	private Set<Role> roles;
+	
+	// Many To Many
+	@LazyCollection(LazyCollectionOption.FALSE)
+	@ManyToMany(cascade = {
+			CascadeType.DETACH,
+			CascadeType.MERGE,
+			CascadeType.PERSIST,
+			CascadeType.REFRESH
+			})
+	@JoinTable(
+			name="users_tags",
+			joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+			inverseJoinColumns = @JoinColumn(name = "tag_id", referencedColumnName = "tag_id"))
+	private Set<Tag> tags;
 
 	// Many Users has many Followers
 	@LazyCollection(LazyCollectionOption.FALSE)
@@ -131,10 +145,11 @@ public class User implements Serializable{
 		this.firstName = firstName;
 		this.lastName = lastName;
 		this.address = address;
-		this.roles = new ArrayList<Role>();
+		this.roles = new HashSet<Role>();
 		this.bookmarks = new ArrayList<Bookmark>();
-		this.followersCollection = new HashSet<User>();
-		this.followingCollection = new HashSet<User>();
+		this.followersCollection = new HashSet<>();
+		this.followingCollection = new HashSet<>();
+		this.tags = new HashSet<>();
 		this.isFollow = false;
 		this.enabled = true;
 	}
@@ -168,11 +183,11 @@ public class User implements Serializable{
 		this.bookmarks = bookmarks;
 	}
 
-	public List<Role> getRoles() {
+	public Set<Role> getRoles() {
 		return roles;
 	}
 
-	public void setRoles(List<Role> roles) {
+	public void setRoles(Set<Role> roles) {
 		this.roles = roles;
 	}
 
@@ -266,5 +281,13 @@ public class User implements Serializable{
 	
 	public void setEnabled(boolean enabled) {
 		this.enabled = enabled;
+	}
+
+	public Set<Tag> getTags() {
+		return tags;
+	}
+	
+	public void setTags(Set<Tag> tags) {
+		this.tags = tags;
 	}
 }

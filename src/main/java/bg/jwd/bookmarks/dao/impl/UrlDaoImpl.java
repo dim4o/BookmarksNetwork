@@ -15,6 +15,7 @@ public class UrlDaoImpl extends AbstractDao<Url> implements UrlDao{
 	}
 
 	// Not transactionl !!!
+	//@Transactional
 	@Override
 	public Url addIfNotExists(Url url) {
 		Url urlFromDb = this.getByProperty("link", url.getLink());

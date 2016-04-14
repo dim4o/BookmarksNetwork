@@ -30,8 +30,8 @@ public class AddBookmarkFormDto {
 		return link;
 	}
 
-	public void setLink(String url) {
-		this.link = url;
+	public void setLink(String link) {
+		this.link = link;
 	}
 
 	public String getDescription() {

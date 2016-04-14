@@ -3,8 +3,6 @@ package bg.jwd.bookmarks.services.impl;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.lang.reflect.Constructor;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -13,10 +11,8 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
-import org.hibernate.Transaction;
 import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
@@ -36,6 +32,7 @@ import bg.jwd.bookmarks.dao.BookmarkDao;
 import bg.jwd.bookmarks.dao.KeywordDao;
 import bg.jwd.bookmarks.dao.TagDao;
 import bg.jwd.bookmarks.dao.UrlDao;
+import bg.jwd.bookmarks.dao.UserDao;
 import bg.jwd.bookmarks.dto.AddBookmarkFormDto;
 import bg.jwd.bookmarks.entities.Bookmark;
 import bg.jwd.bookmarks.entities.Keyword;
@@ -55,6 +52,9 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 	
 	@Autowired
 	BookmarkDao bookmarkDao;
+	
+	@Autowired
+	UserDao userDao;
 	
 	@Autowired
 	private KeywordDao keywordDao;
@@ -79,6 +79,8 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 		this.keywordDao.addAll(keywords);
 		this.tagDao.addAll(tags);
 		urlDao.addIfNotExists(url);
+		author.getTags().addAll(tags);
+		this.userDao.update(author);
 		
 		bookmarkToAdd = new Bookmark(title, url, author, visibility);
 		bookmarkToAdd.setDescription(description);
@@ -317,5 +319,21 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
         }
         
 		return uploadedFile;
+	}
+
+	@Transactional
+	@Override
+	public List<Bookmark> getUserBookmarksByTag(String username, String tagName) {
+		Session session = this.sessionFactory.getCurrentSession();
+		Criteria cr = session.createCriteria(Bookmark.class)
+				.createAlias("tags", "tagsAlias");
+				
+		cr.add(Restrictions.eq("tagsAlias.tagName", tagName))
+				.createAlias("author", "authorAlias");
+		
+		cr.add(Restrictions.eq("authorAlias.username", username));
+
+		
+		return cr.list();
 	}
 }

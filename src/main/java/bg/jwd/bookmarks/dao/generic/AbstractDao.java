@@ -106,6 +106,14 @@ public abstract class AbstractDao<T extends Serializable> implements GenericDao<
 		return obj;
 	}
 	
+	@Override
+	public T addPersist(T obj){
+		Session session = this.getCurrentSession();
+		session.persist(obj);
+		
+		return obj;
+	}
+	
 	private Session getCurrentSession() {
 		return this.sessionFactory.getCurrentSession();
 	}

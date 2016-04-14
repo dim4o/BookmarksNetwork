@@ -41,6 +41,9 @@ public class Tag implements Serializable{
 			})
 	private List<Bookmark> bookmarks;
 
+	@ManyToMany(mappedBy = "tags")
+	private List<User> users;
+	
 	public Tag(){ }
 	
 	public Tag(String tagName){
@@ -87,4 +90,12 @@ public class Tag implements Serializable{
     public int hashCode() {
         return this.tagName.hashCode();
     }
+
+	/*public List<User> getUsers() {
+		return users;
+	}
+
+	public void setUsers(List<User> users) {
+		this.users = users;
+	}*/
 }

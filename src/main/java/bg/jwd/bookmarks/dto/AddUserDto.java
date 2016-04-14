@@ -5,6 +5,8 @@ import java.util.List;
 public class AddUserDto extends RegisterFormDto{
 	
 	private boolean status;
+	
+	private List<String> roles;
 
 	public boolean getStatus() {
 		return status;
@@ -13,16 +15,6 @@ public class AddUserDto extends RegisterFormDto{
 	public void setStatus(boolean status) {
 		this.status = status;
 	}
-	
-	private List<String> roles;
-
-	/*public boolean isStatus() {
-		return status;
-	}
-
-	public void setStatus(boolean status) {
-		this.status = status;
-	}*/
 
 	public List<String> getRoles() {
 		return roles;

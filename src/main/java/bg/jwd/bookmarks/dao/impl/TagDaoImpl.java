@@ -27,7 +27,6 @@ public class TagDaoImpl extends AbstractDao<Tag> implements TagDao{
 		super(Tag.class);
 	}
 
-	@Transactional
 	@Override
 	public void addAll(Set<Tag> tags) {
 		Session session = this.sessionFactory.getCurrentSession();
@@ -43,5 +42,12 @@ public class TagDaoImpl extends AbstractDao<Tag> implements TagDao{
 				session.save(tag);
 			}
 		}
+	}
+
+	@Override
+	public Set<Tag> getTagsByUsername(String username) {
+		Session session = this.sessionFactory.getCurrentSession();
+		
+		return null;
 	}
 }

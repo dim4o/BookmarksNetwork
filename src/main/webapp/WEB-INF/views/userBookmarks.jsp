@@ -7,10 +7,7 @@
 
 <ct:pageTemplate title="My Bookmarks">
 	<jsp:body>
-		<%-- <form action="/bookmarks/user/search/" method="POST">
-			<input type="text" id="txt" name="searchTerm">
-			<button id="button-id" type="submit">Search Bookmarks</button>
-		</form> --%>
+	<div class="row">
 		<form:form action="${contextPath}/user/search/" method="GET" modelAttribute="searchForm" class="navbar-form navbar-left" role="search">
 		
 	        <div class="form-group">
@@ -54,44 +51,59 @@
       	</form:form>
 
 		<a href="${contextPath}/user/bookmarks/add" type="button" class="btn btn-primary">Add Bookmark</a>
-		
+	</div>
+
 <%-- <c:if test="${not empty searchResult}"> --%>
-	<table class="table table-striped table-hover">
-	<thead>
-		<tr>
-			<td>Title</td>
-			<td class="partialText">Url</td>
-			
-			<td>Description</td>
-			<td>Visibility</td>
-			<td>Date Created</td>
-			<td>Actions</td>
-		</tr>
-	</thead>
 
-	<tbody>
-		<c:forEach var="bookmark" items="${bookmarks}">
-			<tr>
-				<td>${bookmark.title}</td>
-				<td class="partialText"><a href="${bookmark.url.link}">${bookmark.url.link}</a></td>
-				<td>${bookmark.description}</td>
-				<td>${bookmark.visibility}</td>
-				<td>${bookmark.creationDate}</td>
-				<td><a href="${contextPath}/user/bookmarks/edit/${bookmark.bookmarkId}" class="btn btn-primary btn-sm">Edit</a>
-					<a href="${contextPath}/user/bookmarks/delete/${bookmark.bookmarkId}" class="btn btn-primary btn-sm">Delete</a>
-				</td>
-			</tr>
-		</c:forEach>		
-	</tbody>
-	</table>
-
-	<ct:pagination 
-			totalPageCount="${totalPageCount}"
-			pageNum="${pageNum}"
-			currentPage="${currentPage}"
-			baseUrl="${contextPath}/user/bookmarks">
-	</ct:pagination>
-
+		<div class="row">
+			<div class="col-lg-2 col-md-2">
+				<ul class="list-group">
+					<c:forEach var="tag" items="${userTags}">
+						<li class="list-group-item">
+							<%-- <span class="badge">${tag.bookmarksCount}</span> --%>
+						  	<a href="${contextPath}/user/bookmarks/tag/${tag.tagName}">${tag.tagName}</a>
+						</li>
+					</c:forEach>
+				</ul>
+			</div>
+			<div class="col-lg-10 col-md-10">
+			<table class="table table-striped table-hover">
+			<thead>
+				<tr>
+					<td>Title</td>
+					<td class="partialText">Url</td>
+					
+					<td>Description</td>
+					<td>Visibility</td>
+					<td>Date Created</td>
+					<td>Actions</td>
+				</tr>
+			</thead>
+		
+			<tbody>
+				<c:forEach var="bookmark" items="${bookmarks}">
+					<tr>
+						<td>${bookmark.title}</td>
+						<td class="partialText"><a href="${bookmark.url.link}">${bookmark.url.link}</a></td>
+						<td>${bookmark.description}</td>
+						<td>${bookmark.visibility}</td>
+						<td>${bookmark.creationDate}</td>
+						<td><a href="${contextPath}/user/bookmarks/edit/${bookmark.bookmarkId}" class="btn btn-primary btn-sm">Edit</a>
+							<a href="${contextPath}/user/bookmarks/delete/${bookmark.bookmarkId}" class="btn btn-primary btn-sm">Delete</a>
+						</td>
+					</tr>
+				</c:forEach>		
+			</tbody>
+			</table>
+			</div>
+			</div>
+			<ct:pagination 
+					totalPageCount="${totalPageCount}"
+					pageNum="${pageNum}"
+					currentPage="${currentPage}"
+					baseUrl="${contextPath}/user/bookmarks">
+			</ct:pagination>
+		
 	</jsp:body>
 </ct:pageTemplate>
 

@@ -19,7 +19,7 @@
 			<div class="form-group">
 				<label for="idInput" class="col-lg-2 control-label">Url</label> 
 				<div class="col-lg-4">
-					<input type="text" name="url" value="${bookmark.url.link}" class="form-control" />
+					<input type="text" name="link" value="${bookmark.url.link}" class="form-control" />
 					<%-- <div><form:errors path="url" cssClass="error"/></div> --%>
 				</div>
 			</div>
