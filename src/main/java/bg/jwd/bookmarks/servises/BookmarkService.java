@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.web.multipart.MultipartFile;
 
 import bg.jwd.bookmarks.dto.AddBookmarkFormDto;
+import bg.jwd.bookmarks.dto.UserTagDto;
 import bg.jwd.bookmarks.entities.Bookmark;
 import bg.jwd.bookmarks.services.generic.GenericService;
 
@@ -27,4 +28,6 @@ public interface BookmarkService extends GenericService<Bookmark> {
 	void importBookmarks(HttpServletRequest request, MultipartFile file, String visibility) throws Throwable;
 	
 	List<Bookmark> getUserBookmarksByTag(String user, String tagName);
+	
+	List<UserTagDto> getUserTagsByBookmarksCount(long userId);
 }

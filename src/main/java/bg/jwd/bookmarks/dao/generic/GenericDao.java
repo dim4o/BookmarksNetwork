@@ -12,6 +12,8 @@ public interface GenericDao<T extends Serializable> {
 	void setClass(Class<T> clazz);
 	
 	T getByProperty(String propertyName, Object value);
+	
+	T get(long id);
 
 	T add(final T obj);
 

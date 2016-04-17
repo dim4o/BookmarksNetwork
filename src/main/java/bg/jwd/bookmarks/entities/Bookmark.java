@@ -58,7 +58,7 @@ public class Bookmark implements Serializable {
 	@JoinColumn(name = "url_id")
 	private Url url;
 
-	@ManyToOne
+	@ManyToOne//(cascade=CascadeType.ALL)
 	@JoinColumn(name = "author_id")
 	private User author;
 

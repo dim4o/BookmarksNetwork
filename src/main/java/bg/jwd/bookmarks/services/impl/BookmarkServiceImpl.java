@@ -3,6 +3,9 @@ package bg.jwd.bookmarks.services.impl;
 import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.math.BigDecimal;
+import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -11,6 +14,7 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 
 import org.hibernate.Criteria;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.hibernate.criterion.Order;
@@ -34,12 +38,14 @@ import bg.jwd.bookmarks.dao.TagDao;
 import bg.jwd.bookmarks.dao.UrlDao;
 import bg.jwd.bookmarks.dao.UserDao;
 import bg.jwd.bookmarks.dto.AddBookmarkFormDto;
+import bg.jwd.bookmarks.dto.UserTagDto;
 import bg.jwd.bookmarks.entities.Bookmark;
 import bg.jwd.bookmarks.entities.Keyword;
 import bg.jwd.bookmarks.entities.Tag;
 import bg.jwd.bookmarks.entities.Url;
 import bg.jwd.bookmarks.entities.User;
 import bg.jwd.bookmarks.enums.VisibilityType;
+import bg.jwd.bookmarks.security.CurrentUser;
 import bg.jwd.bookmarks.services.generic.AbstractService;
 import bg.jwd.bookmarks.servises.BookmarkService;
 import bg.jwd.bookmarks.util.UserUtils;
@@ -68,6 +74,7 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 	@Transactional
 	@Override
 	public Bookmark createBookmark(Bookmark bookmarkToAdd, AddBookmarkFormDto addBookmarkFormDto) throws Exception{
+		//Session session = this.sessionFactory.getCurrentSession();
 		String title = addBookmarkFormDto.getTitle();
 		Url url = new Url(addBookmarkFormDto.getLink());
 		String description = addBookmarkFormDto.getDescription();
@@ -79,9 +86,16 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 		this.keywordDao.addAll(keywords);
 		this.tagDao.addAll(tags);
 		urlDao.addIfNotExists(url);
-		author.getTags().addAll(tags);
-		this.userDao.update(author);
 		
+		Set<Tag> tagsFromDb = new HashSet<Tag>();
+		for (Tag tag : tags) {
+			Tag t = tagDao.getByProperty("tagName", tag.getTagName());
+			tagsFromDb.add(t);
+		}
+
+		author.getTags().addAll(tagsFromDb);
+		userDao.update(author);
+
 		bookmarkToAdd = new Bookmark(title, url, author, visibility);
 		bookmarkToAdd.setDescription(description);
 		bookmarkToAdd.setKeywords(keywords);
@@ -93,6 +107,8 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 	@Transactional
 	@Override
 	public Bookmark editBookmark(Bookmark bookmark, AddBookmarkFormDto form){
+		Session s = this.sessionFactory.getCurrentSession();
+		User author = userDao.get(UserUtils.getCurrentUser().getUser().getUserId());
 		Url url = new Url(form.getLink());
 		Url urlFromDb = this.urlDao.getByProperty("link", form.getLink());
 		Set<Keyword> keywords = this.mapToKeyordList(form.getKeywords());
@@ -100,13 +116,15 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 
 		bookmark.setTitle(form.getTitle());
 		bookmark.setDescription(form.getDescription());
+		bookmark.setVisibility(VisibilityType.valueOf(form.getVisibility()));
 		
-		if(urlFromDb != null){
+		// TODO: not working
+		if(urlFromDb != null && !urlFromDb.getBookmarks().contains(bookmark)){
 			bookmark.setVisibility(VisibilityType.Private);
-		} else {
-			bookmark.setVisibility(VisibilityType.valueOf(form.getVisibility()));
-			//urlDao.add(url);
 		}
+			
+			//urlDao.add(url);
+		
 
 		keywordDao.addAll(keywords);
 		tagDao.addAll(tags);
@@ -126,9 +144,12 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 			tagsFromDb.add(t);
 		}
 
+		author.getTags().addAll(tagsFromDb);
+		s.persist(author);
 		bookmark.setKeywords(keysFromDb);
 		bookmark.setTags(tagsFromDb);
-
+		//this.userDao.update(bookmark.getAuthor());
+		
 		return bookmark;
 	}
 	
@@ -335,5 +356,36 @@ public class BookmarkServiceImpl extends AbstractService<Bookmark> implements Bo
 
 		
 		return cr.list();
+	}
+	
+	@Transactional
+	@Override
+	public List<UserTagDto> getUserTagsByBookmarksCount(long userId) {
+		Session session = this.sessionFactory.getCurrentSession();
+
+		String sql = 
+				"SELECT tag_name, COUNT(*)\n" +
+				"FROM tags t\n" + 
+					"JOIN bookmarks_tags bt\n" + 
+						"ON t.tag_id = bt.tag_id\n" + 
+					"JOIN bookmarks b\n" + 
+						"ON bt.bookmark_id = b.bookmark_id\n" + 
+					"JOIN USERS u\n" +
+						"ON b.author_id = u.user_id\n" +
+					"WHERE u.user_id = " + userId + "\n" +
+				"GROUP BY t.tag_name, tag_name";
+		
+		Query query = session.createSQLQuery(sql);
+		@SuppressWarnings("unchecked")
+		List<Object[]> tuples = query.list();
+		List<UserTagDto> tagsByCount = new ArrayList<>();
+		
+		for (Object[] tuple : tuples) {
+			String tagName = (String)tuple[0];
+			BigDecimal count = (BigDecimal)tuple[1];
+			tagsByCount.add(new UserTagDto(tagName, count));
+		}
+		
+		return tagsByCount;
 	}
 }

@@ -28,6 +28,7 @@ import bg.jwd.bookmarks.constants.Constants;
 import bg.jwd.bookmarks.constants.UrlContants;
 import bg.jwd.bookmarks.constants.ViewsConstants;
 import bg.jwd.bookmarks.dao.BookmarkDao;
+import bg.jwd.bookmarks.dao.UserDao;
 import bg.jwd.bookmarks.dto.AddBookmarkFormDto;
 import bg.jwd.bookmarks.dto.UserTagDto;
 import bg.jwd.bookmarks.entities.Bookmark;
@@ -55,6 +56,9 @@ public class BookmarkController {
 	@Autowired
 	private UrlService urlService;
 	
+	@Autowired
+	private UserDao userDao;
+	
 	@ModelAttribute("currentUserUsername")
 	public void addCommonObjects(Model model){
 		
@@ -63,20 +67,29 @@ public class BookmarkController {
 		model.addAttribute("bookmarksActive", "active");
 		model.addAttribute("bookmarkController", UrlContants.BOOKMARKS_CONTROLLER_URL);
 	}
-	
+	@Transactional
 	@RequestMapping(method = RequestMethod.GET)
 	public String userBookmarks(Model model) {
 
 		User currentUser = UserUtils.getCurrentUser().getUser();
+		long id = currentUser.getUserId();
 		String currentUserUsername = currentUser.getUsername();
 
 		List<Bookmark> bookmarks = bookmarkService.getUserBookmarksWithPagination(1, 10, currentUserUsername, false);
 		int totalPageCount = (int) Math.ceil((double)bookmarkService.getCount(currentUserUsername) / 10.0d);
 		model.addAttribute("totalPageCount", totalPageCount);
 		model.addAttribute("bookmarks", bookmarks);
-		model.addAttribute("userTags", currentUser.getTags());
+		// TODO: if bookmarks size > 0
+		//model.addAttribute("userTags", bookmarks.get(0).getAuthor().getTags());
+		model.addAttribute("userTags", bookmarkService.getUserTagsByBookmarksCount(currentUser.getUserId()));
+		//model.addAttribute("userTags", currentUser.getTags());
 		
 		log.debug(totalPageCount);
+		System.out.println("@@@@@@@@@@@@@");
+		for (Tag tag : currentUser.getTags()) {
+			System.out.println(tag.getTagName());
+		}
+		System.out.println("@@@@@@@@@@@@@");
 		
 		return ViewsConstants.USER_BOOKMARKS;
 	}
@@ -241,7 +254,7 @@ public class BookmarkController {
 		}*/
 		
         model.addAttribute("bookmarks", bookmarks);
-        model.addAttribute("userTags", currUser.getTags());
+        model.addAttribute("userTags", bookmarkService.getUserTagsByBookmarksCount(currUser.getUserId()));
         
         return "userBookmarks";
     }

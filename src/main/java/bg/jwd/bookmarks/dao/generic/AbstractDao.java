@@ -29,6 +29,11 @@ public abstract class AbstractDao<T extends Serializable> implements GenericDao<
 		this.clazz = clazz;
 	}
 	
+	@Override
+	public T get(long id){
+		return this.getCurrentSession().get(this.clazz, id);
+	}
+	
 	@SuppressWarnings("unchecked")
 	@Override
 	public List<T> getAllByProperty(String propertyName, Object value) {

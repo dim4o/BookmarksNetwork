@@ -2,6 +2,7 @@ package bg.jwd.bookmarks.entities;
 
 import java.io.Serializable;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.CascadeType;
 import javax.persistence.Column;
@@ -42,7 +43,7 @@ public class Tag implements Serializable{
 	private List<Bookmark> bookmarks;
 
 	@ManyToMany(mappedBy = "tags")
-	private List<User> users;
+	private Set<User> users;
 	
 	public Tag(){ }
 	
@@ -74,6 +75,14 @@ public class Tag implements Serializable{
 		this.bookmarks = bookmarks;
 	}
 	
+	public Set<User> getUsers() {
+		return users;
+	}
+
+	public void setUsers(Set<User> users) {
+		this.users = users;
+	}
+	
 	@Override
 	public String toString() {
 		return this.getTagName();
@@ -90,12 +99,4 @@ public class Tag implements Serializable{
     public int hashCode() {
         return this.tagName.hashCode();
     }
-
-	/*public List<User> getUsers() {
-		return users;
-	}
-
-	public void setUsers(List<User> users) {
-		this.users = users;
-	}*/
 }

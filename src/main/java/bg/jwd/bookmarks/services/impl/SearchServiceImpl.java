@@ -78,7 +78,10 @@ public class SearchServiceImpl implements SearchService{
 			
 			org.apache.lucene.search.Query luceneQuery = qb
 					  .keyword().wildcard()
-					  .onField("title").andField("keywords.keyword").andField("tags.tagName").andField("description")
+					  .onField("title")
+					  .andField("keywords.keyword")
+					  .andField("tags.tagName")
+					  .andField("description")
 					  .matching(term.toLowerCase())
 					  .createQuery();
 			
@@ -185,10 +188,12 @@ public class SearchServiceImpl implements SearchService{
 		Criteria criteria0 = session.createCriteria(Bookmark.class)
 				.add(Restrictions.like("title", keyword + "%").ignoreCase());
 
-		Criteria criteria1 = session.createCriteria(Bookmark.class).createAlias("tags", "tagsAlias")
+		Criteria criteria1 = session.createCriteria(Bookmark.class)
+				.createAlias("tags", "tagsAlias")
 				.add(Restrictions.like("tagsAlias.tagName", keyword + "%").ignoreCase());
 
-		Criteria criteria2 = session.createCriteria(Bookmark.class).createAlias("keywords", "keywordsAlias")
+		Criteria criteria2 = session.createCriteria(Bookmark.class)
+				.createAlias("keywords", "keywordsAlias")
 				.add(Restrictions.like("keywordsAlias.keyword", keyword + "%").ignoreCase());
 
 		criteria0.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);

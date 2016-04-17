@@ -56,16 +56,27 @@
 <%-- <c:if test="${not empty searchResult}"> --%>
 
 		<div class="row">
-			<div class="col-lg-2 col-md-2">
+			<%-- <div class="col-lg-2 col-md-2">
 				<ul class="list-group">
 					<c:forEach var="tag" items="${userTags}">
 						<li class="list-group-item">
-							<%-- <span class="badge">${tag.bookmarksCount}</span> --%>
+							<span class="badge">${tag.bookmarksCount}</span>
 						  	<a href="${contextPath}/user/bookmarks/tag/${tag.tagName}">${tag.tagName}</a>
 						</li>
 					</c:forEach>
 				</ul>
+			</div> --%>
+			
+			<div class="col-lg-2 col-md-2">
+				<div class="list-group">
+			  		<a href="#" class="list-group-item active">Tags</a>
+			 		<c:forEach var="tag" items="${userTags}">
+			 			<a href="#" class="list-group-item">Dapibus ac facilisis in</a>
+			 		</c:forEach>
+				</div>
 			</div>
+			
+			
 			<div class="col-lg-10 col-md-10">
 			<table class="table table-striped table-hover">
 			<thead>
